@@ -73,13 +73,11 @@ public class Hash {
    */
   public String toString() {
 
-    //String hexString = "";
+    String hexString = "";
 
-    String hexString = String.format("%2X", this.dataArr);
-    
-    // for (int i = 0; i < this.dataArr.length; i++) { ???
-    //   hexString.concat(String.format("%2x", Byte.toUnsignedInt(this.dataArr[i])));
-    // } // for
+    for (int i = 0; i < this.dataArr.length; i++) {
+      hexString.concat(String.format("%2x", Byte.toUnsignedInt(this.dataArr[i])));
+    } // for
 
     return hexString;
   } // toString()
