@@ -1,15 +1,44 @@
 package edu.grinnell.csc207.blockchains;
 
+import java.nio.ByteBuffer;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 /**
  * Blocks to be stored in blockchains.
  *
- * @author Your Name Here
+ * @author Richard Lin, Maral Bat-Erdene
  * @author Samuel A. Rebelsky
  */
 public class Block {
   // +--------+------------------------------------------------------
   // | Fields |
   // +--------+
+
+  /**
+   * Stores the number associated to this block.
+   */
+  int blockNum;
+
+  /**
+   * Stores the transaction of this block.
+   */
+  Transaction finishedDeal;
+
+  /**
+   * The hash of the block before this block.
+   */
+  Hash prevHash;
+
+  /**
+   * The hash of this block.
+   */
+  Hash hash;
+
+  /**
+   * Used to calculate the hash of this block.
+   */
+  long nonce;
 
   // +--------------+------------------------------------------------
   // | Constructors |
@@ -31,6 +60,13 @@ public class Block {
    */
   public Block(int num, Transaction transaction, Hash prevHash,
       HashValidator check) {
+    this.blockNum = num;
+    this.finishedDeal = transaction;
+    this.prevHash = prevHash;
+
+    byte[] lbytes = ByteBuffer.allocate(Long.BYTES).putLong(this.nonce).array(); // NOT DONE
+
+
     // STUB
   } // Block(int, Transaction, Hash, HashValidator)
 
@@ -47,7 +83,14 @@ public class Block {
    *   The nonce of the block.
    */
   public Block(int num, Transaction transaction, Hash prevHash, long nonce) {
-    // STUB
+    this.blockNum = num;
+    this.finishedDeal = transaction;
+    this.prevHash = prevHash;
+    this.nonce = nonce;
+    try {
+      this.hash = new Hash(computeHash(this));
+    } catch (Exception e){
+    } // try/catch
   } // Block(int, Transaction, Hash, long)
 
   // +---------+-----------------------------------------------------
@@ -58,8 +101,33 @@ public class Block {
    * Compute the hash of the block given all the other info already
    * stored in the block.
    */
-  static void computeHash() {
-    // STUB
+  static byte[] computeHash(Block cube) throws NoSuchAlgorithmException{ // Can update to compile into single methods probably.
+
+    MessageDigest hashCreator = MessageDigest.getInstance("sha-256");
+    //Should not throw exception since sha-256 should be valid, unless exception
+    // is for something else.
+
+    // BlockNum of cube
+    hashCreator.update(Integer.valueOf(cube.getNum()).byteValue());
+
+    // Source of finishedDeal of cube
+    hashCreator.update(cube.getTransaction().getSource().getBytes());
+
+    // Target of finishedDeal of cube
+    hashCreator.update(cube.getTransaction().getTarget().getBytes());
+
+    // Amount of finishedDeal of cube
+    hashCreator.update(Integer.valueOf(cube.getTransaction().getAmount()).byteValue());
+
+    // PrevHash of cube
+    hashCreator.update(cube.getPrevHash().getBytes());
+
+    // Nonce of cube
+    hashCreator.update(Long.valueOf(cube.getNonce()).byteValue());
+
+
+    byte[] hash = hashCreator.digest();
+    return hash;
   } // computeHash()
 
   // +---------+-----------------------------------------------------
@@ -72,7 +140,7 @@ public class Block {
    * @return the number of the block.
    */
   public int getNum() {
-    return 0;   // STUB
+    return this.blockNum;
   } // getNum()
 
   /**
@@ -81,7 +149,7 @@ public class Block {
    * @return the transaction.
    */
   public Transaction getTransaction() {
-    return new Transaction("Here", "There", 0); // STUB
+    return this.finishedDeal;
   } // getTransaction()
 
   /**
@@ -90,7 +158,7 @@ public class Block {
    * @return the nonce.
    */
   public long getNonce() {
-    return 0;   // STUB
+    return this.nonce;
   } // getNonce()
 
   /**
@@ -99,7 +167,7 @@ public class Block {
    * @return the hash of the previous block.
    */
   Hash getPrevHash() {
-    return new Hash(new byte[] {0});  // STUB
+    return this.prevHash;
   } // getPrevHash
 
   /**
@@ -108,7 +176,7 @@ public class Block {
    * @return the hash of the current block.
    */
   Hash getHash() {
-    return new Hash(new byte[] {0});  // STUB
+    return this.hash;
   } // getHash
 
   /**
