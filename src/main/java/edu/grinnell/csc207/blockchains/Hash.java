@@ -27,7 +27,7 @@ public class Hash {
    *   The data to copy into the hash.
    */
   public Hash(byte[] data) {
-    this.dataArr = data;
+    this.dataArr = data.clone();
   } // Hash(byte[])
 
   // +---------+-----------------------------------------------------
