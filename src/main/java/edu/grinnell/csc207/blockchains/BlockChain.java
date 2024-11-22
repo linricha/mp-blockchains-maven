@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import edu.grinnell.csc207.util.AssociativeArray;
+import edu.grinnell.csc207.util.KeyNotFoundException;
 import edu.grinnell.csc207.util.Node2;
 
 /**
@@ -39,7 +40,7 @@ public class BlockChain implements Iterable<Transaction> {
     this.prevHash = firstB.getPrevHash();
     this.first = new Node2(firstB);
     this.last = this.first;
-    this.size++;
+    this.size = 1;
     this.balances = new AssociativeArray<>();
   } // BlockChain(HashValidator)
 
@@ -47,6 +48,39 @@ public class BlockChain implements Iterable<Transaction> {
   // | Helpers |
   // +---------+
 
+  /**
+   * Update the balance for a user, initializing it to 0 if not present.
+   *
+   * @param user The user whose balance will be updated.
+   * @param amount The amount to add to the user's balance (can be negative).
+   * @throws IllegalArgumentException if the user's key is null or the update fails.
+   */
+  private void updateBalance(String user, int amount) throws IllegalArgumentException {
+    // Check if user key is valid
+    if (user == null) {
+      throw new IllegalArgumentException();
+    } // if
+
+    // Default the balance to 0 if key is not found
+    int prevBalance = 0;
+    try {
+      prevBalance = this.balances.get(user);
+    } catch (Exception ex) {
+      // Do Nothing
+    } // try/catch
+
+    // Attempt to set the new balance and the user
+    try {
+      this.balances.set(user, prevBalance + amount);
+      int curBalance = this.balances.get(user);
+      if (curBalance < 0) {
+        this.balances.set(user, curBalance - amount);
+        throw new IllegalArgumentException();
+      } // if
+    } catch (Exception ex) {
+      throw new IllegalArgumentException();
+    } // try/catch
+  } // updateBalance(String, int)
   // +---------+-----------------------------------------------------
   // | Methods |
   // +---------+
@@ -61,7 +95,7 @@ public class BlockChain implements Iterable<Transaction> {
    * @return a new block with correct number, hashes, and such.
    */
   public Block mine(Transaction t) {
-    return new Block(size, t, this.prevHash, this.checker);
+    return new Block(this.size, t, this.prevHash, this.checker);
   } // mine(Transaction)  
 
   /**
@@ -83,17 +117,30 @@ public class BlockChain implements Iterable<Transaction> {
    *   the hash is not appropriate for the contents, or (c) the previous
    *   hash is incorrect.
    */
-  public void append(Block blk) {
-    if ((!checker.isValid(blk.getHash())) || (blk.getPrevHash() != this.last.block.getHash())) {
+  public void append(Block blk) throws IllegalArgumentException {
+    // Validate the block
+    Block validationBlock = mine(blk.getTransaction());
+    if (!checker.isValid(blk.getHash()) 
+      || !blk.getHash().equals(validationBlock.getHash()) 
+      || !blk.getPrevHash().equals(this.prevHash)) {
       throw new IllegalArgumentException();
     } // if
-    this.last = this.last.insertAfter(blk);
-    this.prevHash = blk.getPrevHash();
-    this.size++;
+
     Transaction newTran = blk.getTransaction();
-    int currBalSource = this.balances.get(newTran.getSource());
-    this.balances.set(newTran.getSource(), currBalSource - newTran.getAmount());
-  } // append()
+    try {
+      // Update source balance
+      this.updateBalance(newTran.getSource(), -newTran.getAmount());
+      // Update target balance
+      this.updateBalance(newTran.getTarget(), newTran.getAmount());
+    } catch (Exception ex) {
+      throw new IllegalArgumentException();
+    } // try/catch
+
+    // Insert the new block with the Node2 function
+    this.last = this.last.insertAfter(blk);
+    this.prevHash = blk.getHash();
+    this.size++;
+    } // append()
 
   /**
    * Attempt to remove the last block from the chain.
@@ -105,13 +152,23 @@ public class BlockChain implements Iterable<Transaction> {
   public boolean removeLast() {
     if (this.size <= 1) {
       return false;
-    } else {
-      this.last = this.last.prev;
-      this.last.next.remove();
-      this.prevHash = this.last.block.getPrevHash();
-      this.size--;
-      return true;
-    }
+    } // if
+    // Retrieve the transaction to be removed
+    Transaction lastTransaction = this.last.block.getTransaction();
+
+    // Rollback balances to reverse the effects of the last transaction
+    try {
+      this.updateBalance(lastTransaction.getSource(), lastTransaction.getAmount());
+      this.updateBalance(lastTransaction.getTarget(), -lastTransaction.getAmount());
+    } catch (Exception ex) {
+      return false;
+    } // try/catch
+
+    // Remove the last block
+    this.last.next.remove();
+    this.prevHash = this.last.block.getPrevHash();
+    this.size--;
+    return true;
   } // removeLast()
 
   /**
@@ -120,7 +177,7 @@ public class BlockChain implements Iterable<Transaction> {
    * @return the hash of the last sblock in the chain.
    */
   public Hash getHash() {
-    return new Hash(new byte[] {2, 0, 7});   // STUB
+    return this.last.block.getHash();
   } // getHash()
 
   /**
@@ -132,7 +189,22 @@ public class BlockChain implements Iterable<Transaction> {
    * @return true if the blockchain is correct and false otherwise.
    */
   public boolean isCorrect() {
-    return true;        // STUB
+    Node2 prevNode = this.first;
+    Node2 currentNode = this.first.next;
+    Hash prevHash = prevNode.block.getHash();
+    Transaction currentTran = currentNode.block.getTransaction();
+    for (int i = 1; i < this.size; i++) {
+      // every block has a correct previous hash field
+      if (!currentNode.block.getPrevHash().equals(prevHash)) {
+        return false;
+      } // if
+
+      // that every block has a hash that is correct for its contents
+      Block newBlock = new Block(i, currentTran, prevHash, this.checker);
+      // TO BE CONTINUED
+      
+      // the balances are legal at every transaction
+    }
   } // isCorrect()
 
   /**
@@ -145,7 +217,9 @@ public class BlockChain implements Iterable<Transaction> {
    *   If things are wrong at any block.
    */
   public void check() throws Exception {
-    // STUB
+    if (!this.isCorrect()) {
+      throw new Exception();
+    } // if
   } // check()
 
   /**
@@ -175,7 +249,14 @@ public class BlockChain implements Iterable<Transaction> {
    * @return that user's balance (or 0, if the user is not in the system).
    */
   public int balance(String user) {
-    return 0;   // STUB
+    int balance = 0;
+    try {
+      balance = this.balances.get(user);
+    } catch (KeyNotFoundException ex) {
+      // Do Nothing
+    } // try/catch
+
+    return balance;
   } // balance()
 
   /**
