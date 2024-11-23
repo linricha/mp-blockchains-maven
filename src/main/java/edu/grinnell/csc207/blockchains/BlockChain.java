@@ -16,11 +16,34 @@ public class BlockChain implements Iterable<Transaction> {
   // +--------+------------------------------------------------------
   // | Fields |
   // +--------+
+  /** 
+   * Validator for hash values, used to check the validity of blocks.
+   */
   HashValidator checker;
+
+  /** 
+   * Hash of the previous block, used for validating the chain integrity.
+   */
   Hash prevHash;
+
+  /** 
+   * The first node in the blockchain. It holds the first block in the chain.
+   */
   Node2 first;
+
+  /** 
+   * The last node in the blockchain. It holds the most recent block in the chain.
+   */
   Node2 last;
+
+  /** 
+   * The number of blocks in the blockchain
+   */
   int size;
+
+  /** 
+   * An associative array that tracks the balances of users in the blockchain.
+   */
   AssociativeArray<String, Integer> balances;
 
   // +--------------+------------------------------------------------
