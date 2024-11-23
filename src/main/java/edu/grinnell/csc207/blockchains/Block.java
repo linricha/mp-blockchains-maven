@@ -23,7 +23,7 @@ public class Block {
   /**
    * Stores the transaction of this block.
    */
-  Transaction finishedDeal;
+  Transaction transaction;
 
   /**
    * The hash of the block before this block.
@@ -61,7 +61,7 @@ public class Block {
   public Block(int num, Transaction transaction, Hash prevHash,
       HashValidator check) {
     this.blockNum = num;
-    this.finishedDeal = transaction;
+    this.transaction = transaction;
     this.prevHash = prevHash;
     this.computeNonceAndHash(check);
   } // Block(int, Transaction, Hash, HashValidator)
@@ -80,7 +80,7 @@ public class Block {
    */
   public Block(int num, Transaction transaction, Hash prevHash, long nonce) {
     this.blockNum = num;
-    this.finishedDeal = transaction;
+    this.transaction = transaction;
     this.prevHash = prevHash;
     this.nonce = nonce;
     computeHash();
@@ -142,7 +142,7 @@ public class Block {
   private void computeNonceAndHash(HashValidator checkHash) {
     this.nonce = 0;
     this.computeHash();
-    
+
     while (!checkHash.isValid(this.getHash())) {
       this.nonce++;
       this.computeHash();
@@ -170,7 +170,7 @@ public class Block {
    * @return the transaction.
    */
   public Transaction getTransaction() {
-    return this.finishedDeal;
+    return this.transaction;
   } // getTransaction()
 
   /**
