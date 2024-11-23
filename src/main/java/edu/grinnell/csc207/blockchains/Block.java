@@ -63,14 +63,7 @@ public class Block {
     this.blockNum = num;
     this.finishedDeal = transaction;
     this.prevHash = prevHash;
-
-    try {
-      this.computeNonceAndHash(check);
-    } catch (Exception e) {
-    } // try/catch
-
-
-    // STUB
+    this.computeNonceAndHash(check);
   } // Block(int, Transaction, Hash, HashValidator)
 
   /**
@@ -90,10 +83,7 @@ public class Block {
     this.finishedDeal = transaction;
     this.prevHash = prevHash;
     this.nonce = nonce;
-    try {
-      this.hash = new Hash(computeHash(this));
-    } catch (Exception e) {
-    } // try/catch
+    computeHash();
   } // Block(int, Transaction, Hash, long)
 
   // +---------+-----------------------------------------------------
@@ -108,33 +98,38 @@ public class Block {
    * @throws Exception Should not be thrown since a valid algorithm
    * is passed.
    */
-  static byte[] computeHash(Block cube) throws NoSuchAlgorithmException{ // Can update to compile into single methods probably.
+  void computeHash() { // Can update to compile into single methods probably.
 
+  try {
     MessageDigest hashCreator = MessageDigest.getInstance("sha-256");
-    //Should not throw exception since sha-256 should be valid, unless exception
-    // is for something else.
 
     // BlockNum of cube
-    hashCreator.update(Integer.valueOf(cube.getNum()).byteValue());
+    hashCreator.update(Integer.valueOf(this..getNum()).byteValue());
 
     // Source of finishedDeal of cube
-    hashCreator.update(cube.getTransaction().getSource().getBytes());
+    hashCreator.update(this.getTransaction().getSource().getBytes());
 
     // Target of finishedDeal of cube
-    hashCreator.update(cube.getTransaction().getTarget().getBytes());
+    hashCreator.update(this.getTransaction().getTarget().getBytes());
 
     // Amount of finishedDeal of cube
-    hashCreator.update(Integer.valueOf(cube.getTransaction().getAmount()).byteValue());
+    hashCreator.update(Integer.valueOf(this.getTransaction().getAmount()).byteValue());
 
     // PrevHash of cube
-    hashCreator.update(cube.getPrevHash().getBytes());
+    hashCreator.update(this.getPrevHash().getBytes());
 
     // Nonce of cube
-    hashCreator.update(Long.valueOf(cube.getNonce()).byteValue());
+    hashCreator.update(Long.valueOf(this.getNonce()).byteValue());
 
 
     byte[] hash = hashCreator.digest();
-    return hash;
+    this.hash = new Hash(hash);
+
+  } catch (Exception e) {
+    //Should not throw exception since sha-256 should be valid, unless exception
+    // is for something else.
+  } // try/catch
+
   } // computeHash()
 
   /**
@@ -149,10 +144,7 @@ public class Block {
 
     while (!checkHash.isValid(this.getHash())) {
       this.nonce++;
-      try {
-        this.hash = new Hash(computeHash(this));
-      } catch (Exception e) {
-      } // try/catch
+      this.computeHash();
     } // while
   } // computeNonce(HashValidator)
 
