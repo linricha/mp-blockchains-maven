@@ -120,8 +120,8 @@ public class BlockChain implements Iterable<Transaction> {
   public void append(Block blk) throws IllegalArgumentException {
     // Validate the block
     Block validationBlock = mine(blk.getTransaction());
-    if (!checker.isValid(blk.getHash()) 
-      || !blk.getHash().equals(validationBlock.getHash()) 
+    if (!checker.isValid(blk.getHash())
+      || !blk.getHash().equals(validationBlock.getHash())
       || !blk.getPrevHash().equals(this.prevHash)) {
       throw new IllegalArgumentException();
     } // if
@@ -189,22 +189,64 @@ public class BlockChain implements Iterable<Transaction> {
    * @return true if the blockchain is correct and false otherwise.
    */
   public boolean isCorrect() {
-    Node2 prevNode = this.first;
+    // Temporary array to track balances during validation.
+    AssociativeArray<String, Integer> tempBalances = new AssociativeArray<>();
     Node2 currentNode = this.first.next;
-    Hash prevHash = prevNode.block.getHash();
-    Transaction currentTran = currentNode.block.getTransaction();
-    for (int i = 1; i < this.size; i++) {
+
+    // Initial previous hash.
+    Hash prevHash = new Hash(new byte[] {});
+    Transaction currentTran;
+
+    // Iterate over the chain to validate each block.
+    for (int i = 0; i < this.size; i++) {
+      Block currentBlock = currentNode.block;
       // every block has a correct previous hash field
-      if (!currentNode.block.getPrevHash().equals(prevHash)) {
+      if (!currentBlock.getPrevHash().equals(prevHash)) {
         return false;
       } // if
 
       // that every block has a hash that is correct for its contents
-      Block newBlock = new Block(i, currentTran, prevHash, this.checker);
-      // TO BE CONTINUED
-      
-      // the balances are legal at every transaction
-    }
+      currentTran = currentBlock.getTransaction();
+      Block validBlock = new Block(i, currentTran, prevHash, this.checker);
+      if (!validBlock.getHash().equals(currentBlock.getHash())) {
+        return false;
+      } // if
+
+      // that every block has a valid hash
+      if (!this.checker.isValid(currentBlock.getHash())) {
+        return false;
+      } // if
+
+      // the balances are legal/correct at every step
+      String source = currentTran.getSource();
+      String target = currentTran.getTarget();
+      int amount = currentTran.getAmount();
+
+      try {
+        // Update source balance
+        if (source != null) {
+          int sourceBalance = tempBalances.get(source) - amount;
+          if (sourceBalance < 0) {
+            // Negative balance is invalid.
+            return false;
+          } // if
+          tempBalances.set(source, sourceBalance);
+        } // if
+
+        // Update target balance
+        if (target != null) {
+          int targetBalance = tempBalances.get(target) + amount;
+          tempBalances.set(target, targetBalance);
+        } // if
+      } catch (Exception e) {
+        return false;
+      } // try/catch
+
+      // Travel to the next node
+      prevHash = currentBlock.getHash();
+      currentNode = currentNode.next;
+    } // for
+    return true;
   } // isCorrect()
 
   /**
