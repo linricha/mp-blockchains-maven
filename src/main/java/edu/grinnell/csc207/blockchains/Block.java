@@ -141,7 +141,8 @@ public class Block {
    */
   private void computeNonceAndHash(HashValidator checkHash) {
     this.nonce = 0;
-
+    this.computeHash();
+    
     while (!checkHash.isValid(this.getHash())) {
       this.nonce++;
       this.computeHash();
