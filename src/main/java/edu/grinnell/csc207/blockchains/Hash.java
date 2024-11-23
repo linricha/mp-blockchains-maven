@@ -78,7 +78,7 @@ public class Hash {
 
     StringBuilder construct = new StringBuilder();
 
-    for (int i = 0; i < this.dataArr.length; i++) {
+    for (int i = 0; i < this.dataArr.length; i++) { // check if this actually works as intended.
       construct.append(String.format("%2x", Byte.toUnsignedInt(this.dataArr[i])));
     } // for
 
