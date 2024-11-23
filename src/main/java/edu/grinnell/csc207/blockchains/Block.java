@@ -100,35 +100,35 @@ public class Block {
    */
   void computeHash() { // Can update to compile into single methods probably.
 
-  try {
-    MessageDigest hashCreator = MessageDigest.getInstance("sha-256");
+    try {
+      MessageDigest hashCreator = MessageDigest.getInstance("sha-256");
 
-    // BlockNum of cube
-    hashCreator.update(Integer.valueOf(this..getNum()).byteValue());
+      // BlockNum of cube
+      hashCreator.update(Integer.valueOf(this.getNum()).byteValue());
 
-    // Source of finishedDeal of cube
-    hashCreator.update(this.getTransaction().getSource().getBytes());
+      // Source of finishedDeal of cube
+      hashCreator.update(this.getTransaction().getSource().getBytes());
 
-    // Target of finishedDeal of cube
-    hashCreator.update(this.getTransaction().getTarget().getBytes());
+      // Target of finishedDeal of cube
+      hashCreator.update(this.getTransaction().getTarget().getBytes());
 
-    // Amount of finishedDeal of cube
-    hashCreator.update(Integer.valueOf(this.getTransaction().getAmount()).byteValue());
+      // Amount of finishedDeal of cube
+      hashCreator.update(Integer.valueOf(this.getTransaction().getAmount()).byteValue());
 
-    // PrevHash of cube
-    hashCreator.update(this.getPrevHash().getBytes());
+      // PrevHash of cube
+      hashCreator.update(this.getPrevHash().getBytes());
 
-    // Nonce of cube
-    hashCreator.update(Long.valueOf(this.getNonce()).byteValue());
+      // Nonce of cube
+      hashCreator.update(Long.valueOf(this.getNonce()).byteValue());
 
 
-    byte[] hash = hashCreator.digest();
-    this.hash = new Hash(hash);
+      byte[] hash = hashCreator.digest();
+      this.hash = new Hash(hash);
 
-  } catch (Exception e) {
-    //Should not throw exception since sha-256 should be valid, unless exception
-    // is for something else.
-  } // try/catch
+    } catch (Exception e) {
+      //Should not throw exception since sha-256 should be valid, unless exception
+      // is for something else.
+    } // try/catch
 
   } // computeHash()
 
