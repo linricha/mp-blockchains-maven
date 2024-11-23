@@ -10,7 +10,7 @@ import edu.grinnell.csc207.util.Node2;
 /**
  * A full blockchain.
  *
- * @author Maral and Richard
+ * @author Richard Lin, Maral Bat-Erdene
  */
 public class BlockChain implements Iterable<Transaction> {
   // +--------+------------------------------------------------------
@@ -271,15 +271,8 @@ public class BlockChain implements Iterable<Transaction> {
    * @return an iterator of all the people in the system.
    */
   public Iterator<String> users() {
-    return new Iterator<String>() {
-      public boolean hasNext() {
-        return false;   // STUB
-      } // hasNext()
-
-      public String next() {
-        throw new NoSuchElementException();     // STUB
-      } // next()
-    };
+    Iterator<String> userIterator = balances.keyIterator();
+    return userIterator;
   } // users()
 
   /**
@@ -308,12 +301,15 @@ public class BlockChain implements Iterable<Transaction> {
    */
   public Iterator<Block> blocks() {
     return new Iterator<Block>() {
+      private Node2 currentNode = first;
       public boolean hasNext() {
-        return false;   // STUB
+        return currentNode != null && currentNode.block.getNum() < size - 1;
       } // hasNext()
 
       public Block next() {
-        throw new NoSuchElementException();     // STUB
+        Block currentBlock = currentNode.block;
+        currentNode = currentNode.next;
+        return currentBlock;
       } // next()
     };
   } // blocks()
@@ -321,16 +317,23 @@ public class BlockChain implements Iterable<Transaction> {
   /**
    * Get an interator for all the transactions in the chain.
    *
-   * @return an iterator for all the blocks in the chain.
+   * @return an iterator for all the transactions in the chain.
    */
   public Iterator<Transaction> iterator() {
     return new Iterator<Transaction>() {
+      private Node2 currentNode = first;
+
       public boolean hasNext() {
-        return false;   // STUB
+        return currentNode != null && currentNode.block.getNum() < size - 1;
       } // hasNext()
 
       public Transaction next() {
-        throw new NoSuchElementException();     // STUB
+        if (!hasNext()) {
+          throw new NoSuchElementException();
+        }
+        Transaction currentTran = currentNode.block.getTransaction();
+        currentNode = currentNode.next;
+        return currentTran;
       } // next()
     };
   } // iterator()
