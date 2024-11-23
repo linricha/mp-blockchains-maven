@@ -72,6 +72,9 @@ public class Hash {
    * @return the hash as a hex string.
    */
   public String toString() {
+    if (this.dataArr.length == 0) {
+      return "null";
+    } // if
 
     StringBuilder construct = new StringBuilder();
 

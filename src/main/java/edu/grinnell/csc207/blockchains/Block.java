@@ -64,7 +64,10 @@ public class Block {
     this.finishedDeal = transaction;
     this.prevHash = prevHash;
 
-    byte[] lbytes = ByteBuffer.allocate(Long.BYTES).putLong(this.nonce).array(); // NOT DONE
+    try {
+      this.computeNonceAndHash(check);
+    } catch (Exception e) {
+    } // try/catch
 
 
     // STUB
@@ -89,7 +92,7 @@ public class Block {
     this.nonce = nonce;
     try {
       this.hash = new Hash(computeHash(this));
-    } catch (Exception e){
+    } catch (Exception e) {
     } // try/catch
   } // Block(int, Transaction, Hash, long)
 
@@ -100,6 +103,10 @@ public class Block {
   /**
    * Compute the hash of the block given all the other info already
    * stored in the block.
+   *
+   * @param Block the block that will have its hash computed.
+   * @throws Exception Should not be thrown since a valid algorithm
+   * is passed.
    */
   static byte[] computeHash(Block cube) throws NoSuchAlgorithmException{ // Can update to compile into single methods probably.
 
@@ -129,6 +136,27 @@ public class Block {
     byte[] hash = hashCreator.digest();
     return hash;
   } // computeHash()
+
+  /**
+   * Computes the Nonce by checking if the hash compute form the nonce
+   * is valid.
+   *
+   * @param checkHash The hash validator to check whether the nonce is valid
+   * by creating a hash based on that nonce.
+   */
+  private void computeNonceAndHash(HashValidator checkHash) {
+    this.nonce = 0;
+
+    while (!checkHash.isValid(this.getHash())) {
+      this.nonce++;
+      try {
+        this.hash = new Hash(computeHash(this));
+      } catch (Exception e) {
+      } // try/catch
+    } // while
+  } // computeNonce(HashValidator)
+
+
 
   // +---------+-----------------------------------------------------
   // | Methods |
@@ -185,6 +213,7 @@ public class Block {
    * @return a string representation of the block.
    */
   public String toString() {
-    return "";  // STUB
+
+    return String.format("Block %d" + "(Transaction: %s, Nonce: %d, prevHash: %s, hash: %s", this.getNum(), this.getTransaction().toString(), this.getNonce(), this.getPrevHash().toString(), this.getHash().toString());
   } // toString()
 } // class Block
