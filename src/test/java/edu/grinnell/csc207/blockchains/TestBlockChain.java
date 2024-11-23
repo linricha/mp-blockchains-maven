@@ -13,7 +13,9 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.Test;
 
-@@ -11,4 +20,447 @@
+/**
+ * Some simple tests of our BlockChain class. 
+ *
  * @author Samuel A. Rebelsky
  */
 public class TestBlockChain {
