@@ -2,6 +2,9 @@ package edu.grinnell.csc207.util;
 
 import static java.lang.reflect.Array.newInstance;
 
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
 /**
  * A basic implementation of Associative Arrays with keys of type K
  * and values of type V. Associative Arrays store key/value pairs
@@ -198,6 +201,49 @@ public class AssociativeArray<K, V> {
     return this.size;
   } // size()
 
+  /**
+   * Provides an iterator over the keys in the associative array.
+   *
+   * @return An iterator for the keys.
+   */
+  public Iterator<K> keyIterator() {
+    return new Iterator<K>() {
+      private int currentIndex = 0;
+
+      public boolean hasNext() {
+        return currentIndex < size;
+      } // hasNext
+
+      public K next() {
+        if (!hasNext()) {
+          throw new NoSuchElementException();
+        } // if
+        return pairs[currentIndex++].key;
+      } // next
+    };
+  } // keyIterator()
+
+  /**
+   * Provides an iterator over the values in the associative array.
+   *
+   * @return An iterator for the values.
+   */
+  public Iterator<V> valueIterator() {
+    return new Iterator<V>() {
+      private int currentIndex = 0;
+
+      public boolean hasNext() {
+        return currentIndex < size;
+      } // hasNext
+
+      public V next() {
+        if (!hasNext()) {
+          throw new NoSuchElementException();
+        } // if
+        return pairs[currentIndex++].val;
+      } // next
+    };
+  } // valueIterator()
   // +-----------------+---------------------------------------------
   // | Private Methods |
   // +-----------------+
