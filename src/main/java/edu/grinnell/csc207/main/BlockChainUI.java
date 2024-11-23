@@ -109,6 +109,7 @@ public class BlockChainUI {
 
           pen.println("Appended: " + newb.toString());
           break;
+
         case "balance":
           // Prompt for the user
           String user = IOUtils.readLine(pen, eyes, "User: ");
