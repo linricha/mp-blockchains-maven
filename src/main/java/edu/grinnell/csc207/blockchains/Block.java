@@ -48,40 +48,40 @@ public class Block {
    * previous hash, mining to choose a nonce that meets the requirements
    * of the validator.
    *
-   * @param num
+   * @param num1
    *   The number of the block.
-   * @param transaction
+   * @param transaction1
    *   The transaction for the block.
-   * @param prevHash
+   * @param prevHash1
    *   The hash of the previous block.
    * @param check
    *   The validator used to check the block.
    */
-  public Block(int num, Transaction transaction, Hash prevHash,
+  public Block(int num1, Transaction transaction1, Hash prevHash1,
       HashValidator check) {
-    this.blockNum = num;
-    this.transaction = transaction;
-    this.prevHash = prevHash;
+    this.blockNum = num1;
+    this.transaction = transaction1;
+    this.prevHash = prevHash1;
     this.computeNonceAndHash(check);
   } // Block(int, Transaction, Hash, HashValidator)
 
   /**
    * Create a new block, computing the hash for the block.
    *
-   * @param num
+   * @param num1
    *   The number of the block.
-   * @param transaction
+   * @param transaction1
    *   The transaction for the block.
-   * @param prevHash
+   * @param prevHash1
    *   The hash of the previous block.
-   * @param nonce
+   * @param nonce1
    *   The nonce of the block.
    */
-  public Block(int num, Transaction transaction, Hash prevHash, long nonce) {
-    this.blockNum = num;
-    this.transaction = transaction;
-    this.prevHash = prevHash;
-    this.nonce = nonce;
+  public Block(int num1, Transaction transaction1, Hash prevHash1, long nonce1) {
+    this.blockNum = num1;
+    this.transaction = transaction1;
+    this.prevHash = prevHash1;
+    this.nonce = nonce1;
     computeHash();
   } // Block(int, Transaction, Hash, long)
 
@@ -92,10 +92,6 @@ public class Block {
   /**
    * Compute the hash of the block given all the other info already
    * stored in the block.
-   *
-   * @param Block the block that will have its hash computed.
-   * @throws Exception Should not be thrown since a valid algorithm
-   * is passed.
    */
   void computeHash() { // Can update to compile into single methods probably.
 
@@ -112,8 +108,9 @@ public class Block {
       hashCreator.update(this.getTransaction().getTarget().getBytes());
 
       // Amount of finishedDeal of cube
-      hashCreator.update(ByteBuffer.allocate(Integer.BYTES).putInt(this.getTransaction().getAmount()).array());
-      
+      hashCreator.update(ByteBuffer.allocate(Integer.BYTES).
+          putInt(this.getTransaction().getAmount()).array());
+
       // PrevHash of cube
       if (this.prevHash != null) {
         hashCreator.update(this.getPrevHash().getBytes());
@@ -123,8 +120,8 @@ public class Block {
       hashCreator.update(ByteBuffer.allocate(Long.BYTES).putLong(this.nonce).array());
 
 
-      byte[] hash = hashCreator.digest();
-      this.hash = new Hash(hash);
+      byte[] hashBytes = hashCreator.digest();
+      this.hash = new Hash(hashBytes);
 
     } catch (Exception e) {
       //Should not throw exception since sha-256 should be valid, unless exception
@@ -142,7 +139,7 @@ public class Block {
    */
   private void computeNonceAndHash(HashValidator checkHash) {
     this.nonce = 0;
-    this.computeHash();    
+    this.computeHash();
 
     while (!checkHash.isValid(this.getHash())) {
       this.nonce++;
@@ -208,6 +205,8 @@ public class Block {
    */
   public String toString() {
 
-    return String.format("Block %d" + "(Transaction: %s, Nonce: %d, prevHash: %s, hash: %s", this.getNum(), this.getTransaction().toString(), this.getNonce(), this.getPrevHash().toString(), this.getHash().toString());
+    return String.format("Block %d" + "(Transaction: %s, Nonce: %d, prevHash: %s, hash: %s)",
+        this.getNum(), this.getTransaction().toString(), this.getNonce(),
+        this.getPrevHash().toString(), this.getHash().toString());
   } // toString()
 } // class Block

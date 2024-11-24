@@ -68,17 +68,8 @@ public class BlockChainUI {
 
     // Set up our blockchain.
     HashValidator validator =
-        (h) -> {
-          if (h.length() < VALIDATOR_BYTES) {
-            return false;
-          } // if
-          for (int v = 0; v < VALIDATOR_BYTES; v++) {
-            if (h.get(v) != 0) {
-              return false;
-            } // if
-          } // for
-          return true;
-        };
+        (hash) -> (hash.length() >= 3) && (hash.get(0) == 0)
+        && (hash.get(1) == 0) && (hash.get(2) == 0);
     BlockChain chain = new BlockChain(validator);
 
     instructions(pen);
@@ -104,7 +95,8 @@ public class BlockChainUI {
           target = IOUtils.readLine(pen, eyes, "Target: ");
           amount = IOUtils.readInt(pen, eyes, "Amount: ");
           nonce = IOUtils.readInt(pen, eyes, "Nonce: ");
-          Block newb = new Block(chain.getSize(), new Transaction(source, target, amount), chain.getHash(), nonce);
+          Block newb = new Block(chain.getSize(), new Transaction(source, target, amount),
+              chain.getHash(), nonce);
           chain.append(newb);
 
           pen.println("Appended: " + newb.toString());
@@ -136,7 +128,7 @@ public class BlockChainUI {
             pen.println("The blockchain checks out.");
           } catch (Exception e) {
             pen.println("The blockchain does NOT check out.");
-          }
+          } // try/catch
           break;
 
         case "help":
@@ -148,7 +140,7 @@ public class BlockChainUI {
           target = IOUtils.readLine(pen, eyes, "Target: ");
           amount = IOUtils.readInt(pen, eyes, "Amount: ");
           Block b = chain.mine(new Transaction(source, target, amount));
-          pen.println("Nonce: " + b.getNonce());
+          pen.println("Use non6rce: " + b.getNonce());
           break;
 
         case "quit":

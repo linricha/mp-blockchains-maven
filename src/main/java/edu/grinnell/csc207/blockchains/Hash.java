@@ -100,7 +100,7 @@ public class Hash {
         return false;
       } // if
 
-      for (int i = 0; i < this.length(); i ++) {
+      for (int i = 0; i < this.length(); i++) {
         if (this.get(i) != ((Hash) other).get(i)) {
           return false;
         } // if
