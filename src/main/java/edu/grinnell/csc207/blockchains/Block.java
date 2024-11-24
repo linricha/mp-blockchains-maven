@@ -2,7 +2,6 @@ package edu.grinnell.csc207.blockchains;
 
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 /**
  * Blocks to be stored in blockchains.
@@ -104,7 +103,7 @@ public class Block {
       MessageDigest hashCreator = MessageDigest.getInstance("sha-256");
 
       // BlockNum of cube
-      hashCreator.update(Integer.valueOf(this.getNum()).byteValue());
+      hashCreator.update(ByteBuffer.allocate(Integer.BYTES).putInt(this.getNum()).array());
 
       // Source of finishedDeal of cube
       hashCreator.update(this.getTransaction().getSource().getBytes());
@@ -113,13 +112,13 @@ public class Block {
       hashCreator.update(this.getTransaction().getTarget().getBytes());
 
       // Amount of finishedDeal of cube
-      hashCreator.update(Integer.valueOf(this.getTransaction().getAmount()).byteValue());
-
+      hashCreator.update(ByteBuffer.allocate(Integer.BYTES).putInt(this.getTransaction().getAmount()).array());
+      
       // PrevHash of cube
       hashCreator.update(this.getPrevHash().getBytes());
 
       // Nonce of cube
-      hashCreator.update(Long.valueOf(this.getNonce()).byteValue());
+      hashCreator.update(ByteBuffer.allocate(Long.BYTES).putLong(this.nonce).array());
 
 
       byte[] hash = hashCreator.digest();
@@ -141,7 +140,7 @@ public class Block {
    */
   private void computeNonceAndHash(HashValidator checkHash) {
     this.nonce = 0;
-    this.computeHash();
+    this.computeHash();    
 
     while (!checkHash.isValid(this.getHash())) {
       this.nonce++;
