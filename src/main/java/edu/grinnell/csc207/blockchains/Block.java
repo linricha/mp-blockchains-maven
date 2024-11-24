@@ -115,7 +115,9 @@ public class Block {
       hashCreator.update(ByteBuffer.allocate(Integer.BYTES).putInt(this.getTransaction().getAmount()).array());
       
       // PrevHash of cube
-      hashCreator.update(this.getPrevHash().getBytes());
+      if (this.prevHash != null) {
+        hashCreator.update(this.getPrevHash().getBytes());
+      } // if
 
       // Nonce of cube
       hashCreator.update(ByteBuffer.allocate(Long.BYTES).putLong(this.nonce).array());

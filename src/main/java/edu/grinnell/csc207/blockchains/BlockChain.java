@@ -60,7 +60,7 @@ public class BlockChain implements Iterable<Transaction> {
     this.checker = check;
     this.prevHash = new Hash(new byte[] {});
     Block firstB = new Block(0, new Transaction("", "", 0), this.prevHash, this.checker);
-    this.prevHash = firstB.getPrevHash();
+    this.prevHash = firstB.getHash();
     this.first = new Node2(firstB);
     this.last = this.first;
     this.size = 1;
@@ -80,7 +80,7 @@ public class BlockChain implements Iterable<Transaction> {
    */
   private void updateBalance(String user, int amount) throws IllegalArgumentException {
     // Check if user key is valid
-    if (user == null) {
+    if (user == null && !user.equals("")) {
       throw new IllegalArgumentException();
     } // if
 
@@ -96,7 +96,7 @@ public class BlockChain implements Iterable<Transaction> {
     try {
       this.balances.set(user, prevBalance + amount);
       int curBalance = this.balances.get(user);
-      if (curBalance < 0) {
+      if (!user.equals("") && curBalance < 0) {
         this.balances.set(user, curBalance - amount);
         throw new IllegalArgumentException();
       } // if
@@ -118,6 +118,7 @@ public class BlockChain implements Iterable<Transaction> {
    * @return a new block with correct number, hashes, and such.
    */
   public Block mine(Transaction t) {
+    System.out.println("Mine Block: " + this.size + " prevHash: " + this.prevHash);
     return new Block(this.size, t, this.prevHash, this.checker);
   } // mine(Transaction)  
 
@@ -152,7 +153,7 @@ public class BlockChain implements Iterable<Transaction> {
     Transaction newTran = blk.getTransaction();
     try {
       // Update source balance
-      this.updateBalance(newTran.getSource(), -newTran.getAmount());
+      this.updateBalance(newTran.getSource(), -1 * newTran.getAmount());
       // Update target balance
       this.updateBalance(newTran.getTarget(), newTran.getAmount());
     } catch (Exception ex) {
@@ -214,7 +215,7 @@ public class BlockChain implements Iterable<Transaction> {
   public boolean isCorrect() {
     // Temporary array to track balances during validation.
     AssociativeArray<String, Integer> tempBalances = new AssociativeArray<>();
-    Node2 currentNode = this.first.next;
+    Node2 currentNode = this.first;
 
     // Initial previous hash.
     Hash prevHash = new Hash(new byte[] {});
