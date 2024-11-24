@@ -79,7 +79,7 @@ public class Hash {
     StringBuilder construct = new StringBuilder();
 
     for (int i = 0; i < this.dataArr.length; i++) { // check if this actually works as intended.
-      construct.append(String.format("%2x", Byte.toUnsignedInt(this.dataArr[i])));
+      construct.append(String.format("%02X", Byte.toUnsignedInt(this.dataArr[i])));
     } // for
 
     return construct.substring(0);
@@ -95,8 +95,17 @@ public class Hash {
    *   otherwise.
    */
   public boolean equals(Object other) {
-    if (other instanceof byte[]) {
-      return this.dataArr.equals((byte[]) other);
+    if (other instanceof Hash) {
+      if (this.length() != ((Hash) other).length()) {
+        return false;
+      } // if
+
+      for (int i = 0; i < this.length(); i ++) {
+        if (this.get(i) != ((Hash) other).get(i)) {
+          return false;
+        } // if
+      } // for
+      return true;
     } // if
     return false;
   } // equals(Object)
