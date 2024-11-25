@@ -140,7 +140,7 @@ public class BlockChainUI {
           target = IOUtils.readLine(pen, eyes, "Target: ");
           amount = IOUtils.readInt(pen, eyes, "Amount: ");
           Block b = chain.mine(new Transaction(source, target, amount));
-          pen.println("Use non6rce: " + b.getNonce());
+          pen.println("Use nonce: " + b.getNonce());
           break;
 
         case "quit":
@@ -157,10 +157,10 @@ public class BlockChainUI {
 
         case "transactions":
           Iterator<Transaction> tranIterator = chain.iterator();
-
+          Transaction curTransaction = tranIterator.next();
           // Iterate through the blocks and print details
           while (tranIterator.hasNext()) {
-            Transaction curTransaction = tranIterator.next();
+            curTransaction = tranIterator.next();
             pen.println(curTransaction.toString());
           } // while
           break;
