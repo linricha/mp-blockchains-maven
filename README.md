@@ -10,7 +10,8 @@ Authors
 
 Acknowledgements
 
-* I asked questions and got tips from Prof. SamR on the BlockChain class fields.
+* Maral asked questions and got tips from Prof. SamR on the BlockChain class fields.
+* Maral used her previous mini-project Associative-Array and a lab with partner Node2 classes.
 
 **Introduction**
 
